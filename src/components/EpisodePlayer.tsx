@@ -1,33 +1,53 @@
-import React, { useCallback, useEffect, useReducer, useRef } from "react";
-import { Button, makeStyles } from "@material-ui/core";
-import episodesSchema from "./episodes-schema";
+import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { Button, makeStyles, Typography } from "@material-ui/core";
+import episodesSchema from "../episodes-schema";
 
 interface Props {
     onGameEnded: () => unknown;
+    volume: number;
 }
+
+const fixedContent = {
+    position: "fixed",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0
+};
 
 const useStyles = makeStyles({
     outer: {
-        position: "fixed",
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
+        ...fixedContent as any,
         background: "black"
     },
-    actionsMenu: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column"
-    },
     player: {
-        position: "absolute",
-        top: 0,
-        left: 0,
+        ...fixedContent as any,
         width: "100%",
         height: "100%",
         overflow: "hidden"
+    },
+    desicionsMenu: {
+        ...fixedContent as any,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        height: "100vh",
+        zIndex: 15
+    },
+    pausedText: {
+        zIndex: 10,
+        background: "rgba(0, 0, 0, 50%)"
+    },
+    pausedOuter: {
+        ...fixedContent as any,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+    },
+    desicionItem: {
+        width: 300
     }
 });
 
@@ -71,10 +91,11 @@ const reducer = (state: State, action: Action): State => {
     }
 };
 
-let EpisodePlayer: React.FC<Props> = ({ onGameEnded }) => {
+let EpisodePlayer: React.FC<Props> = ({ onGameEnded, volume }) => {
     const classes = useStyles();
 
     //STATE
+    const [videoPaused, setVideoPaused] = useState(false);
     const [state, dispatch] = useReducer(reducer, {
         episode: 0, scene: 0, videoSrc: getVideoSrc(episodesSchema[0].scenes[0].videoId!), decisionsMenu: null
     });
@@ -84,11 +105,11 @@ let EpisodePlayer: React.FC<Props> = ({ onGameEnded }) => {
 
     // //CALBACKS
     const onVideoEndHandler = useCallback(() => {
+        let { episode, scene } = state;
         const episodeScenes = episodesSchema[state.episode].scenes;
-        let newEpisodeScene: [number, number];
-        if (state.scene + 1 >= episodeScenes.length) {
+        if (scene + 1 >= episodeScenes.length) {
             // if episode has ended
-            if (state.episode + 1 >= episodesSchema.length) {
+            if (episode + 1 >= episodesSchema.length) {
                 // if all episodes has ended
                 onGameEnded();
                 return;
@@ -96,14 +117,18 @@ let EpisodePlayer: React.FC<Props> = ({ onGameEnded }) => {
                 dispatch({
                     type: "nextEpisode"
                 });
+                episode += 1;
+                scene = 0;
+                //CRINGEEEEE
             }
         } else {
             dispatch({
                 type: "nextScene"
             });
+            scene += 1;
         }
 
-        const { makeChoice, videoId } = episodesSchema[newEpisodeScene![0]].scenes[newEpisodeScene![1]];
+        const { makeChoice, videoId } = episodesSchema[episode].scenes[scene];
 
 
         if (makeChoice) {
@@ -117,6 +142,7 @@ let EpisodePlayer: React.FC<Props> = ({ onGameEnded }) => {
                                 type: "setVideoIdToPlay",
                                 payload: videoId
                             });
+                            videoElRef.current!.play();
                         }
                     })
                     )
@@ -134,6 +160,15 @@ let EpisodePlayer: React.FC<Props> = ({ onGameEnded }) => {
         if (!videoEl || videoEl.ended) return;
         videoEl.paused ? videoEl.play() : videoEl.pause();
     }, []);
+    const onVideoDoubleClickHandler = useCallback(() => {
+        try {
+            if (!document.fullscreenEnabled) throw new Error("fullscreen isn't enabled");
+            if (document.fullscreenElement === null) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        } catch (err) {
+            console.error(err);
+        }
+    }, []);
 
     //EFFECTS
     useEffect(() => {
@@ -146,22 +181,48 @@ let EpisodePlayer: React.FC<Props> = ({ onGameEnded }) => {
             }
         };
 
+        const { current: videoEl } = videoElRef;
+        if (!videoEl) throw new TypeError("video is not defined");
+        videoEl.onpause = () => !videoEl.ended && setVideoPaused(true);
+        videoEl.onplay = () => setVideoPaused(false);
+
         window.addEventListener("keydown", keyboardListener);
+        document.onfullscreenerror = () => { };
 
         return () => {
             window.removeEventListener("keydown", keyboardListener);
+            document.onfullscreenerror = null;
         };
     }, []);
+    useEffect(() => {
+        const { current: videoEl } = videoElRef;
+        if (!videoEl || videoEl.ended) return;
+        videoEl.volume = volume;
+    }, [volume]);
 
-    return <div className={classes.outer}>
-        <video className={classes.player} src={state.videoSrc} onEnded={onVideoEndHandler} ref={videoElRef} onClick={onVideoClickHandler} />
-        {/* <h1>PAUSED</h1> */}
+    return <div className={classes.outer} onClick={onVideoClickHandler} onDoubleClick={onVideoDoubleClickHandler}>
+        <video autoPlay className={classes.player} src={state.videoSrc} onEnded={onVideoEndHandler} ref={videoElRef} />
+        {
+            videoPaused && <div className={classes.pausedOuter}>
+                <Typography variant="h2" component="h2" className={classes.pausedText}>PAUSED</Typography>
+            </div>
+        }
         {
             state.decisionsMenu &&
-            <div className={classes.actionsMenu}>
+            <div className={classes.desicionsMenu}>
                 {
                     state.decisionsMenu.map(({ text, callback }) => (
-                        <Button onClick={callback} size="large" color="primary">{text}</Button>
+                        <Button
+                            key={text}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                callback();
+                            }}
+                            size="large"
+                            color="default"
+                            variant="contained"
+                            className={classes.desicionItem}
+                        >{text}</Button>
                     ))
                 }
             </div>

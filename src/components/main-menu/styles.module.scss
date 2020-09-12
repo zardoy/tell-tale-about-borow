@@ -16,8 +16,6 @@
     bottom: 0;
     background: url("/background.gif") no-repeat bottom right/contain fixed black;
     overflow: hidden;
-    z-index: -1;
-    color: white;
     padding: 30px 20px;
     font-size: 1.1em;
 
@@ -34,6 +32,7 @@
         margin: 20px 20px;
         padding: 8px 25px;
         border-left: 1px solid darkgray;
+        overflow: auto;
 
         .title, .item {
             font-style: italic;

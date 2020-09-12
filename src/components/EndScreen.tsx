@@ -11,7 +11,10 @@ const useStyles = makeStyles({
         left: 0,
         right: 0,
         bottom: 0,
-        background: "black"
+        background: "black",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
     },
     title: {
         textAlign: "center",

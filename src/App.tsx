@@ -1,15 +1,37 @@
-import { CssBaseline } from "@material-ui/core";
-import React, { useCallback, useState } from "react";
-import EpisodePlayer from "./components/episode-player";
+import { CssBaseline, Slider, makeStyles, Grid, createMuiTheme, ThemeProvider } from "@material-ui/core";
+import React, { useCallback, useMemo, useState } from "react";
+import EpisodePlayer from "./components/EpisodePlayer";
 import EndScreen from "./components/EndScreen";
 import MainMenu from "./components/main-menu";
+import { VolumeUp as VolumeUpIcon } from "@material-ui/icons";
 
 interface Props {
 }
 
+const useStyles = makeStyles({
+    volumeSlider: {
+        position: "fixed",
+        bottom: 5,
+        left: 5,
+        zIndex: 5
+    }
+});
+
 let App: React.FC<Props> = () => {
+    const classes = useStyles();
+
     //STATE
     const [currentScreen, setCurrentScreen] = useState("home" as "home" | "player" | "end");
+    const [appVolume, setAppVolume] = useState(0.7);
+
+    //MEMO
+    const muiTheme = useMemo(() => {
+        return createMuiTheme({
+            palette: {
+                type: "dark"
+            }
+        });
+    }, []);
 
     //CALLBACKS
     const startGameCallback = useCallback(() => {
@@ -19,16 +41,25 @@ let App: React.FC<Props> = () => {
         setCurrentScreen("end");
     }, []);
 
-    return <>
+    const volumeChangeHandler = useCallback((_, val: number) => setAppVolume(val), []);
+
+    return <ThemeProvider theme={muiTheme}>
         <CssBaseline />
-        <MainMenu startGameCallback={startGameCallback} />
+        <Grid container className={classes.volumeSlider}>
+            <Grid item>
+                <VolumeUpIcon />
+            </Grid>
+            <Grid item style={{ width: 200, marginLeft: 5 }}>
+                <Slider color="secondary" max={1} step={0.05} value={appVolume} onChange={volumeChangeHandler as any} />
+            </Grid>
+        </Grid>
         {
-            currentScreen === "home" ? <MainMenu startGameCallback={startGameCallback} /> :
+            currentScreen === "home" ? <MainMenu startGameCallback={startGameCallback} volume={appVolume} /> :
                 currentScreen === "end" ? <EndScreen /> :
-                    currentScreen === "player" ? <EpisodePlayer onGameEnded={onGameEndCallback} /> :
+                    currentScreen === "player" ? <EpisodePlayer onGameEnded={onGameEndCallback} volume={appVolume} /> :
                         null
         }
-    </>;
+    </ThemeProvider>;
 };
 
 export default App;
