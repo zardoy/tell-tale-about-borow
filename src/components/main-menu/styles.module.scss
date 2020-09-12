@@ -1,0 +1,74 @@
+@keyframes blink {
+    from, to{
+        text-shadow: none;
+    }
+
+    40% {
+        text-shadow: 0 0 10px lime;
+    }
+}
+
+.home-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("/background.gif") no-repeat bottom right/contain fixed black;
+    overflow: hidden;
+    z-index: -1;
+    color: white;
+    padding: 30px 20px;
+    font-size: 1.1em;
+
+    .app-title {
+        font-size: 2.5em;
+        font-style: italic;
+        font-weight: 900;
+        font-family: Arial, Helvetica, sans-serif;
+        text-transform: uppercase;
+        text-shadow: 0 0 8px currentColor;
+    }
+
+    .menu {
+        margin: 20px 20px;
+        padding: 8px 25px;
+        border-left: 1px solid darkgray;
+
+        .title, .item {
+            font-style: italic;
+            font-weight: bold;
+        }
+        
+        .title {
+            margin-bottom: 15;
+            font-size: 1.6em;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .item {
+            font-size: 2em; 
+            cursor:pointer;
+            transition: .05s all;
+            padding:3px;
+            font-family: Arial, Helvetica, sans-serif;
+
+            &:hover {
+                padding-left: 8px;
+            }
+            
+            &::before {
+                content: ">";
+                padding-right: 6px;
+                vertical-align: middle;
+                color: lime;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: .8em;
+            }
+
+            &.blink-animation {
+                animation: blink 2s infinite;
+            }
+        }
+    }
+}
