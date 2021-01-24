@@ -1,9 +1,11 @@
-import { CssBaseline, Slider, makeStyles, Grid, createMuiTheme, ThemeProvider } from "@material-ui/core";
 import React, { useCallback, useMemo, useState } from "react";
-import EpisodePlayer from "./components/EpisodePlayer";
-import EndScreen from "./components/EndScreen";
-import MainMenu from "./components/main-menu";
+
+import { createMuiTheme, CssBaseline, Grid, makeStyles, Slider, ThemeProvider } from "@material-ui/core";
 import { VolumeUp as VolumeUpIcon } from "@material-ui/icons";
+
+import EndScreen from "./components/EndScreen";
+import EpisodePlayer from "./components/EpisodePlayer";
+import MainMenu from "./components/MainMenu";
 
 interface Props {
 }
@@ -20,11 +22,11 @@ const useStyles = makeStyles({
 let App: React.FC<Props> = () => {
     const classes = useStyles();
 
-    //STATE
+    // STATE
     const [currentScreen, setCurrentScreen] = useState("home" as "home" | "player" | "end");
     const [appVolume, setAppVolume] = useState(0.7);
 
-    //MEMO
+    // MUI-THEME
     const muiTheme = useMemo(() => {
         return createMuiTheme({
             palette: {
@@ -33,7 +35,7 @@ let App: React.FC<Props> = () => {
         });
     }, []);
 
-    //CALLBACKS
+    // CALLBACKS
     const startGameCallback = useCallback(() => {
         setCurrentScreen("player");
     }, []);
