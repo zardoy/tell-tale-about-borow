@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react";
+
 import { Button, makeStyles, Typography } from "@material-ui/core";
-import episodesSchema from "../episodes-schema";
+
+import { episodesSchema } from "../episodes-schema";
 
 interface Props {
     onGameEnded: () => unknown;

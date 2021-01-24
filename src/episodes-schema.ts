@@ -1,12 +1,4 @@
-type EpisodeScene = {
-    file?: string;
-    makeChoice?: {
-        text: string,
-        file: string;
-    }[];
-}[];
-
-export default [
+export const episodesSchema = [
     {
         title: "Начало. Домашнее пробуждение.",
         scenes: [
