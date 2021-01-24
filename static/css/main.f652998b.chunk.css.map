@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://src/index.css"],"names":[],"mappings":"AAAA,iBACI,MACI,gBACJ,CAEA,IACI,yBACJ,CACJ,CAEA,KACI,wBAAiB,CAAjB,oBAAiB,CAAjB,gBACJ","file":"main.f652998b.chunk.css","sourcesContent":["@keyframes blink {\n    from, to{\n        text-shadow: none;\n    }\n\n    40% {\n        text-shadow: 0 0 10px lime;\n    }\n}\n\nbody {\n    user-select: none;\n}"]}
