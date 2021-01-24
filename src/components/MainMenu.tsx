@@ -85,10 +85,10 @@ let MainMenu: React.FC<Props> = ({ startGameCallback, volume }) => {
             showWarning && <Dialog open={true} disableBackdropClick={true}>
                 <DialogTitle>Hey!</DialogTitle>
                 <DialogContent>
-                    Возможен мат, лучше играть с наушниками.
+                    A lot of Russian swearing. Headphones recommended.
                 </DialogContent>
                 <DialogActions>
-                    <Button color="primary" onClick={closeWarningHanlder}>Let's go!</Button>
+                    <Button color="primary" onClick={closeWarningHanlder}>OKAY</Button>
                 </DialogActions>
             </Dialog>
         }
