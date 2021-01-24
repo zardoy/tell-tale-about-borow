@@ -1,3 +1,13 @@
+@keyframes blink {
+    from, to{
+        text-shadow: none;
+    }
+
+    40% {
+        text-shadow: 0 0 10px lime;
+    }
+}
+
 body {
     user-select: none;
 }
