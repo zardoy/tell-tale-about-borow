@@ -1,5 +1,7 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@material-ui/core";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
+
 import classes from "./styles.module.scss";
 
 interface Props {
@@ -10,19 +12,19 @@ interface Props {
 const DO_NOT_DISPLAY_WARNING = "doNotDisplayWarning";
 
 let MainMenu: React.FC<Props> = ({ startGameCallback, volume }) => {
-    //REFS
+    // REFS
     const audioElRef = useRef(null as null | HTMLAudioElement);
 
-    //STATE
+    // STATE
     const [showWarning, setShowWarning] = useState(!localStorage.getItem(DO_NOT_DISPLAY_WARNING));
 
-    //CALLBACKS
+    // CALLBACKS
     const closeWarningHanlder = useCallback(() => {
         localStorage.setItem(DO_NOT_DISPLAY_WARNING, "yes");
         setShowWarning(false);
     }, []);
 
-    //EFFECTS
+    // EFFECTS
     useEffect(() => {
         if (showWarning) return;
         const { current: audioEl } = audioElRef;
@@ -41,7 +43,7 @@ let MainMenu: React.FC<Props> = ({ startGameCallback, volume }) => {
                     Возможен мат, лучше играть с наушниками.
                 </DialogContent>
                 <DialogActions>
-                    <Button color="primary" onClick={closeWarningHanlder}>Поехали!</Button>
+                    <Button color="primary" onClick={closeWarningHanlder}>Let's go!</Button>
                 </DialogActions>
             </Dialog> :
                 <audio src={"/MainMenuLoop.mp3"} autoPlay loop ref={audioElRef} />
