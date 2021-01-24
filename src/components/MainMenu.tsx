@@ -1,8 +1,10 @@
 import React, { useCallback, useState } from "react";
 
 import classNames from "classnames";
+import ReactHowler from "react-howler";
 
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, makeStyles } from "@material-ui/core";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, makeStyles } from "@material-ui/core";
+import { PlayArrow as PlayArrowIcon } from "@material-ui/icons";
 
 const useStyles = makeStyles({
     root: {
@@ -24,6 +26,11 @@ const useStyles = makeStyles({
         textTransform: "uppercase",
         textShadow: `0 0 8px currentColor`,
     },
+    playLoopButton: {
+        position: "fixed",
+        top: 5,
+        left: 5
+    },
 
     menuRoot: {
         margin: `20px 20px`,
@@ -44,6 +51,8 @@ const useStyles = makeStyles({
         transition: ".05s all",
         padding: "3px",
         fontFamily: "Arial, Helvetica, sans-serif",
+        color: "inherit",
+        textDecoration: "none",
         "&:hover": {
             paddingLeft: "8px"
         },
@@ -72,15 +81,27 @@ let MainMenu: React.FC<Props> = ({ startGameCallback, volume }) => {
     const classes = useStyles();
 
     // STATE
-    const [showWarning, setShowWarning] = useState(!localStorage.getItem(DO_NOT_DISPLAY_WARNING));
+    const [showWarning, setShowWarning] = useState(window.localStorage.getItem(DO_NOT_DISPLAY_WARNING) === null);
+    const [loopPlaying, setLoopPlaying] = useState(false);
 
     // CALLBACKS
     const closeWarningHanlder = useCallback(() => {
-        localStorage.setItem(DO_NOT_DISPLAY_WARNING, "yes");
+        window.localStorage.setItem(DO_NOT_DISPLAY_WARNING, "true");
+        // todo use one button
+        setLoopPlaying(true);
         setShowWarning(false);
+    }, []);
+    const unmuteLoopHandler = useCallback(() => {
+        setLoopPlaying(true);
     }, []);
 
     return <div className={classes.root}>
+        <ReactHowler
+            src="/MainMenuLoop.mp3"
+            volume={volume}
+            playing={loopPlaying}
+            loop
+        />
         {
             showWarning && <Dialog open={true} disableBackdropClick={true}>
                 <DialogTitle>Hey!</DialogTitle>
@@ -92,22 +113,33 @@ let MainMenu: React.FC<Props> = ({ startGameCallback, volume }) => {
                 </DialogActions>
             </Dialog>
         }
+        {
+            !showWarning && !loopPlaying && <Button
+                className={classes.playLoopButton}
+                startIcon={<PlayArrowIcon />}
+                variant="outlined"
+                onClick={unmuteLoopHandler}
+            // TODO place instead of bottom controls
+            >UNMUTE LOOP</Button>
+        }
         <h1 className={classes.appTitle}>{process.env.REACT_APP_NAME}</h1>
         <div className={classes.menuRoot}>
             <div className={classes.menuTitle}>Main Menu</div>
-            {
-                new Array(3).fill(null).map((_, index) => {
-                    return <div
-                        key={index}
-                        className={classNames({
-                            [classes.menuButton]: true,
-                            [classes.menuFirstButton]: index === 0
-                        })}
-                        onClick={startGameCallback}
-                    >Start The Game</div>;
-                })
-            }
-            <a className={classes.menuButton} href={process.env.REACT_APP_GITHUB_LINK}>View on GitHub</a>
+            <Grid container direction="column">
+                {
+                    new Array(2).fill(null).map((_, index) => {
+                        return <div
+                            key={index}
+                            className={classNames({
+                                [classes.menuButton]: true,
+                                [classes.menuFirstButton]: index === 0
+                            })}
+                            onClick={startGameCallback}
+                        >Start The Game</div>;
+                    })
+                }
+                <a className={classes.menuButton} href={process.env.REACT_APP_GITHUB_LINK}>View on GitHub</a>
+            </Grid>
         </div>
     </div>;
 };
